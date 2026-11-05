@@ -1,0 +1,64 @@
+app:
+  name: ClinAtlas
+  version: "1.0"
+  debug: false
+
+database:
+  url: "postgresql+asyncpg://clinatlas:changeme@localhost:5432/clinatlas"
+  pool_size: 10
+  max_overflow: 20
+
+qdrant:
+  url: "http://localhost:6333"
+  collection_child: "medical_chunks_child"
+  collection_parent: "medical_chunks_parent"
+  vector_size: 1024
+
+redis:
+  url: "redis://localhost:6379/0"
+  cache_ttl: 1800              # 检索结果缓存 30 分钟
+
+minio:
+  endpoint: "localhost:9000"
+  access_key: "clinatlas"
+  secret_key: "changeme"
+  bucket: "clinatlas-docs"
+  secure: false
+
+embedding:
+  model_name: "BAAI/bge-m3"
+  model_path: "./data/models/bge-m3"   # 本地路径，优先离线加载
+  batch_size: 64
+  device: "cpu"                         # 有 GPU 改为 "cuda"
+  normalize: true
+
+reranker:
+  model_name: "BAAI/bge-reranker-v2-m3"
+  model_path: "./data/models/bge-reranker-v2-m3"
+  device: "cpu"
+
+chunking:
+  child_chunk_size: 256
+  child_chunk_overlap: 50
+  parent_chunk_size: 1024
+  parent_chunk_overlap: 100
+  # 不可拆分的块类型
+  atomic_types:
+    - table
+    - list
+    - code_block
+
+ocr:
+  enabled: true
+  lang: "ch"                # PaddleOCR 语言，ch 支持中英文
+  use_gpu: false
+
+celery:
+  broker_url: "redis://localhost:6379/1"
+  result_backend: "redis://localhost:6379/2"
+  worker_concurrency: 4
+  task_serializer: "json"
+
+logging:
+  level: "INFO"
+  format: "json"
